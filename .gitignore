@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+/node_modules
+/*/node_modules
+
+# Next.js Build Output
+.next/
+/frontend/.next/
+out/
+build/
+
+# Local databases (SQLite & logs)
+*.db
+*.db-journal
+backend/prisma/dev.db
+backend/prisma/dev.db-journal
+
+# Environment Secrets
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+backend/.env
+agent/.env
+
+# OS-specific files
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Temporary files
+agent/temp_screenshot.png
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

@@ -1,0 +1,38 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  passwordHash String
+  role         String   @default("user") // admin, user
+  createdAt    DateTime @default(now())
+}
+
+model CommandLog {
+  id             String   @id @default(uuid())
+  text           String
+  intent         String
+  status         String   // "SUCCESS" | "FAILED" | "PENDING"
+  action         String
+  errorMsg       String?
+  processingTime Int?
+  tokensUsed     Int?
+  timestamp      DateTime @default(now())
+}
+
+model Workflow {
+  id            String   @id @default(uuid())
+  name          String   @unique
+  description   String?
+  triggerPhrase String   @unique // e.g. "start work mode"
+  steps         String   // JSON array of actions e.g. '[{"type":"open-url","target":"https://github.com"},{"type":"open-app","target":"chrome"}]'
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+}

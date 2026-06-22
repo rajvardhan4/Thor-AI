@@ -1,0 +1,21 @@
+{
+  "name": "thor-ai-root",
+  "version": "1.0.0",
+  "description": "THOR AI - Advanced Voice Controlled Computer Assistant",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend",
+    "agent"
+  ],
+  "scripts": {
+    "install:all": "npm install && npm install --prefix backend && npm install --prefix agent && npm install --prefix frontend",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:agent": "npm run dev --prefix agent",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:agent\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

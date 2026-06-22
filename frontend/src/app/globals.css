@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+:root {
+  --background: #030712;
+  --foreground: #f3f4f6;
+  --thor-blue: #00f0ff;
+  --thor-purple: #bd00ff;
+  --thor-glow: rgba(0, 240, 255, 0.45);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-share-tech-mono), monospace;
+  --font-mono: var(--font-share-tech-mono), monospace;
+  --font-orbitron: var(--font-orbitron), sans-serif;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-share-tech-mono), monospace;
+  overflow: hidden;
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Sci-fi background grid */
+.hud-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(0, 240, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.hud-grid::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle, transparent 40%, rgba(3, 7, 18, 0.8) 100%);
+  pointer-events: none;
+}
+
+/* Hologram scanline effect */
+.scanlines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  );
+  background-size: 100% 4px;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+/* Sci-fi scanner bar */
+.scanner-bar {
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to right, transparent, var(--thor-blue), transparent);
+  box-shadow: 0 0 15px var(--thor-blue);
+  animation: scan 6s linear infinite;
+  opacity: 0.3;
+  z-index: 2;
+  pointer-events: none;
+}
+
+@keyframes scan {
+  0% { top: 0%; }
+  50% { top: 100%; }
+  100% { top: 0%; }
+}
+
+/* AI Core Animations */
+@keyframes pulseGlow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 40px rgba(0, 240, 255, 0.5), inset 0 0 40px rgba(0, 240, 255, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 70px rgba(0, 240, 255, 0.8), inset 0 0 60px rgba(0, 240, 255, 0.5);
+  }
+}
+
+@keyframes spinSlow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes spinCounter {
+  0% { transform: rotate(360deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.ai-core-glow {
+  animation: pulseGlow 4s ease-in-out infinite;
+}
+
+.ai-ring-outer {
+  animation: spinSlow 15s linear infinite;
+}
+
+.ai-ring-inner {
+  animation: spinCounter 10s linear infinite;
+}
+
+/* Glassmorphism utility */
+.glass-panel {
+  background: rgba(10, 15, 30, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 240, 255, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glass-panel:hover {
+  border-color: rgba(0, 240, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(0, 240, 255, 0.05);
+}
+
+/* Custom scrollbar for terminal/timeline */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 240, 255, 0.3);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 240, 255, 0.6);
+}

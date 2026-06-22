@@ -1,0 +1,16 @@
+{
+  "name": "thor-agent",
+  "version": "1.0.0",
+  "main": "agent.js",
+  "scripts": {
+    "dev": "nodemon agent.js",
+    "start": "node agent.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "socket.io-client": "^4.7.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
