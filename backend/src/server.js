@@ -392,6 +392,19 @@ app.post('/api/login', async (req, res) => {
   }
 
   try {
+    // Check if any admin exists in the database. If not, seed admin dynamically.
+    const adminExists = await prisma.user.findFirst({ where: { username: 'admin' } });
+    if (!adminExists) {
+      await prisma.user.create({
+        data: {
+          username: 'admin',
+          passwordHash: hashPassword('thor'),
+          role: 'admin'
+        }
+      });
+      console.log('Admin user seeded dynamically in /api/login');
+    }
+
     const user = await prisma.user.findUnique({ where: { username } });
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
@@ -407,7 +420,8 @@ app.post('/api/login', async (req, res) => {
       user: { id: user.id, username: user.username, role: user.role }
     });
   } catch (err) {
-    res.status(500).json({ error: 'Database error' });
+    console.error('Login database error:', err);
+    res.status(500).json({ error: 'Database error', details: err.message });
   }
 });
 
