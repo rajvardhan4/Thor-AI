@@ -42,6 +42,10 @@ export default function LoginPage() {
     });
   }, []);
 
+  useEffect(() => {
+    setStatus('idle');
+  }, [screen]);
+
   const getBackendUrl = () => {
     const socketUrl = process.env.NEXT_PUBLIC_SOCKET_SERVER_URL || 'http://localhost:3001';
     return socketUrl.endsWith('/') ? socketUrl.slice(0, -1) : socketUrl;
