@@ -276,6 +276,42 @@ socket.on('agent:execute', async (payload) => {
           fs.writeFileSync(resolvedPath, content || '');
           result.feedback = `Created file: ${resolvedPath}`;
           result.speechReply = `File created`;
+        } else if (operation === 'rename') {
+          const newName = parameters.newPath || parameters.destinationPath || parameters.newName;
+          if (!newName) throw new Error("Rename target name or path is required.");
+          
+          let resolvedNewPath = newName;
+          if (newName.startsWith('~')) {
+            resolvedNewPath = path.join(os.homedir(), newName.slice(1));
+          } else if (newName.toLowerCase().startsWith('desktop/')) {
+            resolvedNewPath = path.join(os.homedir(), 'Desktop', newName.substring(8));
+          } else if (!newName.includes('/') && !newName.includes('\\')) {
+            resolvedNewPath = path.join(path.dirname(resolvedPath), newName);
+          }
+          
+          fs.renameSync(resolvedPath, resolvedNewPath);
+          result.feedback = `Renamed ${resolvedPath} to ${resolvedNewPath}`;
+          result.speechReply = `Item renamed successfully`;
+        } else if (operation === 'move') {
+          const dest = parameters.newPath || parameters.destinationPath || parameters.destination;
+          if (!dest) throw new Error("Move destination path is required.");
+          
+          let resolvedDest = dest;
+          if (dest.startsWith('~')) {
+            resolvedDest = path.join(os.homedir(), dest.slice(1));
+          } else if (dest.toLowerCase() === 'desktop' || dest.toLowerCase() === 'desktop/') {
+            resolvedDest = path.join(os.homedir(), 'Desktop');
+          } else if (dest.toLowerCase().startsWith('desktop/')) {
+            resolvedDest = path.join(os.homedir(), 'Desktop', dest.substring(8));
+          }
+          
+          if (fs.existsSync(resolvedDest) && fs.statSync(resolvedDest).isDirectory()) {
+            resolvedDest = path.join(resolvedDest, path.basename(resolvedPath));
+          }
+          
+          fs.renameSync(resolvedPath, resolvedDest);
+          result.feedback = `Moved ${resolvedPath} to ${resolvedDest}`;
+          result.speechReply = `Item moved successfully`;
         } else if (operation === 'delete') {
           if (fs.existsSync(resolvedPath)) {
             const stats = fs.statSync(resolvedPath);

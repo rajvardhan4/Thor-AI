@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const { PrismaClient } = require('@prisma/client');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const openaiService = require('./services/openaiService');
+const emailService = require('./services/emailService');
 
 const prisma = new PrismaClient();
 const app = express();
@@ -29,21 +30,27 @@ async function seedAdmin() {
     if (!adminExists) {
       await prisma.user.create({
         data: {
+          fullName: 'Rajvardhan',
           username: 'admin',
+          email: 'admin@thor.ai',
+          phone: '+1234567890',
           passwordHash: hashPassword('thor'),
-          role: 'admin'
+          role: 'admin',
+          desktopAutomationGranted: true
         }
       });
       console.log('Default admin user created (Username: admin, Password: thor)');
     } else {
-      // Transition password to 'thor' if it's still 'jarvis' or keep consistent
+      // Keep consistent and update to match new columns if missing
       await prisma.user.update({
         where: { id: adminExists.id },
         data: {
+          fullName: adminExists.fullName || 'Rajvardhan',
+          email: adminExists.email || 'admin@thor.ai',
           passwordHash: hashPassword('thor')
         }
       });
-      console.log('Admin password updated to thor');
+      console.log('Admin password / schema properties verified');
     }
   } catch (err) {
     console.error('Error seeding admin user:', err);
@@ -384,7 +391,7 @@ User command: "${text}"`;
   }
 }
 
-// Authentication API
+// Authentication API - Login
 app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
@@ -397,15 +404,28 @@ app.post('/api/login', async (req, res) => {
     if (!adminExists) {
       await prisma.user.create({
         data: {
+          fullName: 'Rajvardhan',
           username: 'admin',
+          email: 'admin@thor.ai',
+          phone: '+1234567890',
           passwordHash: hashPassword('thor'),
-          role: 'admin'
+          role: 'admin',
+          desktopAutomationGranted: true
         }
       });
       console.log('Admin user seeded dynamically in /api/login');
     }
 
-    const user = await prisma.user.findUnique({ where: { username } });
+    // Find user by either username or email
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { username: username },
+          { email: username }
+        ]
+      }
+    });
+
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -417,10 +437,97 @@ app.post('/api/login', async (req, res) => {
 
     res.json({
       success: true,
-      user: { id: user.id, username: user.username, role: user.role }
+      user: { 
+        id: user.id, 
+        username: user.username, 
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        role: user.role, 
+        desktopAutomationGranted: user.desktopAutomationGranted 
+      }
     });
   } catch (err) {
     console.error('Login database error:', err);
+    res.status(500).json({ error: 'Database error', details: err.message });
+  }
+});
+
+// Authentication API - Register
+app.post('/api/register', async (req, res) => {
+  const { fullName, username, email, phone, password, confirmPassword } = req.body;
+  if (!fullName || !username || !email || !password || !confirmPassword) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+  if (password !== confirmPassword) {
+    return res.status(400).json({ error: 'Passwords do not match' });
+  }
+
+  try {
+    // Check username duplication
+    const dupUser = await prisma.user.findUnique({ where: { username } });
+    if (dupUser) {
+      return res.status(400).json({ error: 'Username is already taken' });
+    }
+
+    // Check email duplication
+    const dupEmail = await prisma.user.findUnique({ where: { email } });
+    if (dupEmail) {
+      return res.status(400).json({ error: 'Email address is already in use' });
+    }
+
+    const newUser = await prisma.user.create({
+      data: {
+        fullName,
+        username,
+        email,
+        phone: phone || null,
+        passwordHash: hashPassword(password),
+        role: 'user',
+        desktopAutomationGranted: false
+      }
+    });
+
+    // Send welcome email (asynchronous to avoid blocking user response)
+    emailService.sendWelcomeEmail(email, fullName).catch(err => {
+      console.error('Failed to trigger welcome email asynchronously:', err);
+    });
+
+    res.json({
+      success: true,
+      message: 'Account created successfully. You can now login.'
+    });
+  } catch (err) {
+    console.error('Registration database error:', err);
+    res.status(500).json({ error: 'Database error', details: err.message });
+  }
+});
+
+// User Permission Update API
+app.patch('/api/user/permissions', async (req, res) => {
+  const { userId, granted } = req.body;
+  if (!userId) {
+    return res.status(400).json({ error: 'User ID is required' });
+  }
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { desktopAutomationGranted: !!granted }
+    });
+
+    res.json({
+      success: true,
+      user: { 
+        id: updatedUser.id, 
+        username: updatedUser.username, 
+        fullName: updatedUser.fullName, 
+        role: updatedUser.role,
+        desktopAutomationGranted: updatedUser.desktopAutomationGranted 
+      }
+    });
+  } catch (err) {
+    console.error('Permission update database error:', err);
     res.status(500).json({ error: 'Database error', details: err.message });
   }
 });
