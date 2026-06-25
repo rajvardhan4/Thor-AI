@@ -1,6 +1,8 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Shield, Fingerprint, Cpu, Lock, Terminal, User, Mail, Phone, ArrowLeft, ShieldAlert } from 'lucide-react';
+import { Shield, Fingerprint, Cpu, Lock, Terminal, User, Mail, Phone, ArrowLeft, ShieldAlert, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
   const [screen, setScreen] = useState<'landing' | 'login' | 'register'>('landing');
@@ -8,6 +10,7 @@ export default function LoginPage() {
   // Login State
   const [loginIdentifier, setLoginIdentifier] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
   
   // Register State
   const [regFullName, setRegFullName] = useState('');
@@ -16,6 +19,8 @@ export default function LoginPage() {
   const [regPhone, setRegPhone] = useState('');
   const [regPassword, setRegPassword] = useState('');
   const [regConfirmPassword, setRegConfirmPassword] = useState('');
+  const [showRegPassword, setShowRegPassword] = useState(false);
+  const [showRegConfirmPassword, setShowRegConfirmPassword] = useState(false);
 
   const [status, setStatus] = useState<'idle' | 'scanning' | 'granted' | 'denied'>('idle');
   const [logs, setLogs] = useState<string[]>([]);
@@ -268,13 +273,20 @@ export default function LoginPage() {
                 <Lock className="w-4 h-4" />
               </span>
               <input
-                type="password"
+                type={showLoginPassword ? 'text' : 'password'}
                 placeholder="SECURITY CODE"
                 value={loginPassword}
                 onChange={e => setLoginPassword(e.target.value)}
                 disabled={status === 'scanning' || status === 'granted'}
-                className="w-full bg-black/50 border border-cyan-500/30 rounded px-3 py-2.5 pl-10 text-cyan-100 placeholder-cyan-700 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/30 text-xs tracking-wider"
+                className="w-full bg-black/50 border border-cyan-500/30 rounded px-3 py-2.5 pl-10 pr-10 text-cyan-100 placeholder-cyan-700 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/30 text-xs tracking-wider"
               />
+              <button
+                type="button"
+                onClick={() => setShowLoginPassword(!showLoginPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-cyan-500/60 hover:text-cyan-400 transition"
+              >
+                {showLoginPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
 
             <button
@@ -362,13 +374,20 @@ export default function LoginPage() {
                   <Lock className="w-3.5 h-3.5" />
                 </span>
                 <input
-                  type="password"
+                  type={showRegPassword ? 'text' : 'password'}
                   placeholder="SECURITY CODE"
                   value={regPassword}
                   onChange={e => setRegPassword(e.target.value)}
                   disabled={status === 'scanning' || status === 'granted'}
-                  className="w-full bg-black/50 border border-cyan-500/30 rounded px-3 py-2 pl-9 text-cyan-100 placeholder-cyan-700 focus:outline-none focus:border-cyan-400 text-xs tracking-wider"
+                  className="w-full bg-black/50 border border-cyan-500/30 rounded px-3 py-2 pl-9 pr-9 text-cyan-100 placeholder-cyan-700 focus:outline-none focus:border-cyan-400 text-xs tracking-wider"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowRegPassword(!showRegPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-cyan-500/60 hover:text-cyan-400 transition"
+                >
+                  {showRegPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                </button>
               </div>
 
               <div className="relative">
@@ -376,13 +395,20 @@ export default function LoginPage() {
                   <Lock className="w-3.5 h-3.5" />
                 </span>
                 <input
-                  type="password"
+                  type={showRegConfirmPassword ? 'text' : 'password'}
                   placeholder="CONFIRM CODE"
                   value={regConfirmPassword}
                   onChange={e => setRegConfirmPassword(e.target.value)}
                   disabled={status === 'scanning' || status === 'granted'}
-                  className="w-full bg-black/50 border border-cyan-500/30 rounded px-3 py-2 pl-9 text-cyan-100 placeholder-cyan-700 focus:outline-none focus:border-cyan-400 text-xs tracking-wider"
+                  className="w-full bg-black/50 border border-cyan-500/30 rounded px-3 py-2 pl-9 pr-9 text-cyan-100 placeholder-cyan-700 focus:outline-none focus:border-cyan-400 text-xs tracking-wider"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowRegConfirmPassword(!showRegConfirmPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-cyan-500/60 hover:text-cyan-400 transition"
+                >
+                  {showRegConfirmPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                </button>
               </div>
             </div>
 
